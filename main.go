@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go-xlib/xlib"
 	"os"
-	"time"
 )
 
 func main() {
@@ -25,11 +24,18 @@ func main() {
 	win := display.CreateSimpleWindow(root, 100, 100, 300, 300, 0, white, black)
 
 	// Map window
+	display.SelectInput(win, xlib.ButtonPressMask)
 	display.MapWindow(win)
 	display.Flush()
 
-	// Sleep 10 seconds
-	time.Sleep(10000000000)
+	// Event loop
+	for {
+		ev := display.NextEvent()
+		fmt.Println("Event type: ", ev.Type())
+		if ev.Type() == xlib.ButtonPress {
+			break
+		}
+	}
 
 	display.Close()
 }

@@ -50,5 +50,5 @@ func (d *Display) DefaultScreen() int {
 }
 
 func (d *Display) MapWindow(w Window) {
-	C.XMapWindow(d.ptr, C.ulong(w))
+	C.XMapWindow(d.ptr, w.id)
 }
