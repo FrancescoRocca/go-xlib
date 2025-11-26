@@ -133,6 +133,20 @@ func (d *Display) GetWindowAttributes(window Window) (WindowAttributes, error) {
 }
 
 /*
+ * MoveWindow
+ */
+func (d *Display) MoveWindow(window Window, x int, y int) {
+	C.XMoveWindow(d.ptr, window.id, C.int(x), C.int(y))
+}
+
+/*
+ * ResizeWindow
+ */
+func (d *Display) ResizeWindow(window Window, width uint, height uint) {
+	C.XResizeWindow(d.ptr, window.id, C.uint(width), C.uint(height))
+}
+
+/*
  * MoveResizeWindow moves and resizes a window.
  */
 func (d *Display) MoveResizeWindow(window Window, x int, y int, width uint, height uint) {
