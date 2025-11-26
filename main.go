@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go-xlib/xlib"
 	"os"
+
+	"github.com/francescorocca/go-xlib/xlib"
 )
 
 func main() {

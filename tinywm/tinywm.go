@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"go-xlib/xlib"
 	"os"
 	"os/exec"
+
+	"github.com/francescorocca/go-xlib/xlib"
 )
 
 func spawnLauncher() error {
