@@ -11,14 +11,37 @@ type Event struct {
 	ptr C.XEvent
 }
 
-const (
-	ButtonPress = int(C.ButtonPress)
-	KeyPress    = int(C.KeyPress)
-)
+type KeyEvent struct {
+	Type         int
+	Serial       uint64
+	SendEvent    bool
+	Display      *Display
+	Window       Window
+	Root         Window
+	Subwindow    Window
+	Time         uint64
+	X, Y         int
+	XRoot, YRoot int
+	State        uint
+	Keycode      uint
+	SameScreen   bool
+}
 
-const (
-	ButtonPressMask = uint32(C.ButtonPressMask)
-)
+type ButtonEvent struct {
+	Type         int
+	Serial       uint64
+	SendEvent    bool
+	Display      *Display
+	Window       Window
+	Root         Window
+	Subwindow    Window
+	Time         uint64
+	X, Y         int
+	XRoot, YRoot int
+	State        uint
+	Button       uint
+	SameScreen   int
+}
 
 func (d *Display) SelectInput(window Window, event_mask uint32) {
 	C.XSelectInput(d.ptr, window.id, C.long(event_mask))
@@ -37,4 +60,64 @@ func (d *Display) NextEvent() Event {
 
 func (e *Event) Type() int {
 	return int(C.GetEventType(&e.ptr))
+}
+
+func (e *Event) KeyEvent() *C.XKeyEvent {
+	return C.GetKeyEvent(&e.ptr)
+}
+
+func (e *Event) AsKeyEvent() *KeyEvent {
+	ke := e.KeyEvent()
+
+	if ke == nil {
+		return nil
+	}
+
+	return &KeyEvent{
+		Type:       int(ke._type),
+		Serial:     uint64(ke.serial),
+		SendEvent:  ke.send_event != 0,
+		Display:    &Display{ptr: ke.display},
+		Window:     Window{id: ke.window},
+		Root:       Window{id: ke.root},
+		Subwindow:  Window{id: ke.subwindow},
+		Time:       uint64(ke.time),
+		X:          int(ke.x),
+		Y:          int(ke.y),
+		XRoot:      int(ke.x_root),
+		YRoot:      int(ke.y_root),
+		State:      uint(ke.state),
+		Keycode:    uint(ke.keycode),
+		SameScreen: ke.same_screen != 0,
+	}
+}
+
+func (e *Event) ButtonEvent() *C.XButtonEvent {
+	return C.GetButtonEvent(&e.ptr)
+}
+
+func (e *Event) AsButtonEvent() *ButtonEvent {
+	be := e.ButtonEvent()
+
+	if be == nil {
+		return nil
+	}
+
+	return &ButtonEvent{
+		Type:       int(be._type),
+		Serial:     uint64(be.serial),
+		SendEvent:  be.send_event != 0,
+		Display:    &Display{ptr: be.display},
+		Window:     Window{id: be.window},
+		Root:       Window{id: be.root},
+		Subwindow:  Window{id: be.subwindow},
+		Time:       uint64(be.time),
+		X:          int(be.x),
+		Y:          int(be.y),
+		XRoot:      int(be.x_root),
+		YRoot:      int(be.y_root),
+		State:      uint(be.state),
+		Button:     uint(be.button),
+		SameScreen: int(be.same_screen),
+	}
 }

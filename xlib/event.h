@@ -3,6 +3,20 @@
 
 #include <X11/Xlib.h>
 
-int GetEventType(XEvent *event);
+static inline int GetEventType(XEvent *event) {
+    return event->type;
+}
+
+static inline XKeyEvent *GetKeyEvent(XEvent *event) {
+    return &event->xkey;
+}
+
+static inline XButtonEvent *GetButtonEvent(XEvent *event) {
+    return &event->xbutton;
+}
+
+static inline XMotionEvent *GetMotionEvent(XEvent *event) {
+    return &event->xmotion;
+}
 
 #endif
