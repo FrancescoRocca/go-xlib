@@ -15,7 +15,7 @@ func main() {
 
 	fmt.Println("Display connected!")
 
-	// Make a simple window
+	/* Make a simple window */
 	screen_num := display.DefaultScreen()
 	root := display.RootWindow(screen_num)
 	black := display.BlackPixel(screen_num)
@@ -23,12 +23,12 @@ func main() {
 
 	win := display.CreateSimpleWindow(root, 100, 100, 300, 300, 0, white, black)
 
-	// Map window
+	/* Map window */
 	display.SelectInput(win, xlib.ButtonPressMask)
 	display.MapWindow(win)
 	display.Flush()
 
-	// Event loop
+	/* Event loop */
 	for {
 		ev := display.NextEvent()
 		fmt.Println("Event type: ", ev.Type())
