@@ -4,10 +4,12 @@ package xlib
 #cgo LDFLAGS: -lX11
 #include <X11/Xlib.h>
 #include <stdlib.h>
+#include "error.h"
 */
 import "C"
 import (
 	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -79,6 +81,34 @@ type KeySym struct {
 	ptr C.KeySym
 }
 
+func (d *Display) InitErrorHandler() {
+	C.SetErrorHandler()
+}
+
+func XErrorString(code C.int) string {
+	switch code {
+	case C.BadAccess:
+		return "BadAccess (resource busy / permission denied)"
+	case C.BadAlloc:
+		return "BadAlloc (insufficient resources)"
+	case C.BadWindow:
+		return "BadWindow (invalid window)"
+	default:
+		return fmt.Sprintf("Unknown X error (%d)", int(code))
+	}
+}
+
+func (d *Display) SyncAndCheckError() error {
+	C.XSync(d.ptr, C.Bool(0))
+	code := C.GetErrorCode()
+	C.ResetErrorCode()
+	if code != 0 {
+		return fmt.Errorf("X error (%d): %s", code, XErrorString(code))
+	}
+
+	return nil
+}
+
 /*
  * OpenDisplay opens a connection to the X11 display.
  * If name is empty, the default display is used.
@@ -132,14 +162,16 @@ func NoneCursor() Cursor {
 /*
  * MapWindow maps a window to the display.
  */
-func (d *Display) MapWindow(w Window) {
+func (d *Display) MapWindow(w Window) error {
 	C.XMapWindow(d.ptr, w.id)
+
+	return d.SyncAndCheckError()
 }
 
 /*
  * GrabKey grabs keyboard input for a specific key and window.
  */
-func (d *Display) GrabKey(keycode uint, modifiers uint, grab_window Window, owner_events int, pointer_mode int, keyboard_mode int) {
+func (d *Display) GrabKey(keycode uint, modifiers uint, grab_window Window, owner_events int, pointer_mode int, keyboard_mode int) error {
 	C.XGrabKey(
 		d.ptr,
 		C.int(keycode),
@@ -148,6 +180,8 @@ func (d *Display) GrabKey(keycode uint, modifiers uint, grab_window Window, owne
 		C.int(owner_events),
 		C.int(pointer_mode),
 		C.int(keyboard_mode))
+
+	return d.SyncAndCheckError()
 }
 
 /*
@@ -164,7 +198,7 @@ func (d *Display) UngrabKey(keycode int, modifiers uint, grab_window Window) {
 /*
  * GrabButton grabs mouse button input for a window.
  */
-func (d *Display) GrabButton(button uint32, modifiers uint, grab_window Window, owner_events int, event_mask uint32, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor) {
+func (d *Display) GrabButton(button uint32, modifiers uint, grab_window Window, owner_events int, event_mask uint32, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor) error {
 	C.XGrabButton(
 		d.ptr,
 		C.uint(button),
@@ -176,6 +210,8 @@ func (d *Display) GrabButton(button uint32, modifiers uint, grab_window Window, 
 		C.int(keyboard_mode),
 		confine_to.id,
 		cursor.ptr)
+
+	return d.SyncAndCheckError()
 }
 
 /*

@@ -44,6 +44,8 @@ func main() {
 	}
 	defer dpy.Close()
 
+	dpy.InitErrorHandler()
+
 	root := dpy.DefaultRootWindow()
 	dpy.SelectInput(root, xlib.SubstructureNotifyMask|xlib.SubstructureRedirectMask)
 

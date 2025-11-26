@@ -14,6 +14,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	/* Initialize the error handler */
+	display.InitErrorHandler()
+
 	fmt.Println("Display connected!")
 
 	/* Make a simple window */

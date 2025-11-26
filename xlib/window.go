@@ -77,7 +77,7 @@ func (d *Display) DefaultRootWindow() Window {
  * ConfigureWindow changes the configuration of a window.
  * The value_mask parameter determines which fields in changes are used.
  */
-func (d *Display) ConfigureWindow(window Window, value_mask uint, changes WindowChanges) {
+func (d *Display) ConfigureWindow(window Window, value_mask uint, changes WindowChanges) error {
 	cChanges := C.XWindowChanges{
 		x:            C.int(changes.X),
 		y:            C.int(changes.Y),
@@ -88,6 +88,8 @@ func (d *Display) ConfigureWindow(window Window, value_mask uint, changes Window
 		stack_mode:   C.int(changes.StackMode),
 	}
 	C.XConfigureWindow(d.ptr, C.Window(window.id), C.uint(value_mask), &cChanges)
+
+	return d.SyncAndCheckError()
 }
 
 /*
@@ -117,6 +119,7 @@ func (d *Display) GetWindowAttributes(window Window) (WindowAttributes, error) {
 	if status == 0 {
 		return WindowAttributes{}, errors.New("XGetWindowAttributes failed")
 	}
+
 	return WindowAttributes{
 		ptr:         wa,
 		X:           int(wa.x),
@@ -147,9 +150,7 @@ func (d *Display) MoveResizeWindow(window Window, x int, y int, width uint, heig
  * Returns an error if the operation fails.
  */
 func (d *Display) RaiseWindow(window Window) error {
-	ret := C.XRaiseWindow(d.ptr, window.id)
-	if ret != 0 {
-		return errors.New("XRaiseWindow failed")
-	}
-	return nil
+	C.XRaiseWindow(d.ptr, window.id)
+
+	return d.SyncAndCheckError()
 }

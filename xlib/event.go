@@ -85,8 +85,10 @@ type ConfigureRequestEvent struct {
 /*
  * SelectInput selects which events are reported for a window.
  */
-func (d *Display) SelectInput(window Window, event_mask uint32) {
+func (d *Display) SelectInput(window Window, event_mask uint32) error {
 	C.XSelectInput(d.ptr, window.id, C.long(event_mask))
+
+	return d.SyncAndCheckError()
 }
 
 /*
