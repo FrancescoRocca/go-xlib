@@ -12,22 +12,36 @@ import (
 )
 
 const (
-	None                     int    = C.None
-	True                     int    = C.True
-	False                    int    = C.False
-	GrabModeSync             int    = C.GrabModeSync
-	GrabModeAsync            int    = C.GrabModeAsync
-	Mod1Mask                 uint32 = uint32(C.Mod1Mask)
-	ButtonPress              int    = int(C.ButtonPress)
-	ButtonRelease            int    = int(C.ButtonRelease)
-	KeyPress                 int    = int(C.KeyPress)
-	KeyRelease               int    = int(C.KeyRelease)
+	None          int = C.None
+	True          int = C.True
+	False         int = C.False
+	GrabModeSync  int = C.GrabModeSync
+	GrabModeAsync int = C.GrabModeAsync
+)
+
+const (
+	MapRequest       int = int(C.MapRequest)
+	ConfigureRequest int = int(C.ConfigureRequest)
+	MotionNotify     int = int(C.MotionNotify)
+)
+
+const (
+	ButtonPress   int = int(C.ButtonPress)
+	ButtonRelease int = int(C.ButtonRelease)
+	KeyPress      int = int(C.KeyPress)
+	KeyRelease    int = int(C.KeyRelease)
+)
+
+const (
+	Mod1Mask                 uint   = uint(C.Mod1Mask)
+	Mod2Mask                 uint   = uint(C.Mod2Mask)
+	Mod4Mask                 uint   = uint(C.Mod4Mask)
+	LockMask                 uint   = uint(C.LockMask)
 	KeyPressMask             uint32 = uint32(C.KeyPressMask)
 	KeyReleaseMask           uint32 = uint32(C.KeyReleaseMask)
 	ButtonPressMask          uint32 = uint32(C.ButtonPressMask)
 	ButtonReleaseMask        uint32 = uint32(C.ButtonReleaseMask)
 	PointerMotionMask        uint32 = uint32(C.PointerMotionMask)
-	MotionNotify             int    = int(C.MotionNotify)
 	SubstructureRedirectMask uint32 = uint32(C.SubstructureRedirectMask)
 	SubstructureNotifyMask   uint32 = uint32(C.SubstructureNotifyMask)
 )
@@ -86,7 +100,7 @@ func (d *Display) MapWindow(w Window) {
 	C.XMapWindow(d.ptr, w.id)
 }
 
-func (d *Display) GrabKey(keycode int, modifiers uint32, grab_window Window, owner_events int, pointer_mode int, keyboard_mode int) {
+func (d *Display) GrabKey(keycode uint, modifiers uint, grab_window Window, owner_events int, pointer_mode int, keyboard_mode int) {
 	C.XGrabKey(
 		d.ptr,
 		C.int(keycode),
@@ -105,7 +119,7 @@ func (d *Display) UngrabKey(keycode int, modifiers uint, grab_window Window) {
 		grab_window.id)
 }
 
-func (d *Display) GrabButton(button uint32, modifiers uint32, grab_window Window, owner_events int, event_mask uint32, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor) {
+func (d *Display) GrabButton(button uint32, modifiers uint, grab_window Window, owner_events int, event_mask uint32, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor) {
 	C.XGrabButton(
 		d.ptr,
 		C.uint(button),
@@ -133,10 +147,10 @@ func StringToKeysym(str string) KeySym {
 	return KeySym{ptr: C.XStringToKeysym(cstr)}
 }
 
-func (d *Display) KeysymToKeycode(keysym KeySym) (int, error) {
+func (d *Display) KeysymToKeycode(keysym KeySym) (uint, error) {
 	ret := C.XKeysymToKeycode(d.ptr, keysym.ptr)
 	if ret == 0 {
 		return 0, errors.New("XKeysymToKeycode failed")
 	}
-	return int(ret), nil
+	return uint(ret), nil
 }
