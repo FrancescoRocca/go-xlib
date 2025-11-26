@@ -17,11 +17,12 @@ import (
  * Event type constants for X11 events.
  */
 const (
-	None          int = C.None
-	True          int = C.True
-	False         int = C.False
-	GrabModeSync  int = C.GrabModeSync
-	GrabModeAsync int = C.GrabModeAsync
+	None          int    = C.None
+	True          int    = C.True
+	False         int    = C.False
+	CurrentTime   uint64 = C.CurrentTime
+	GrabModeSync  int    = C.GrabModeSync
+	GrabModeAsync int    = C.GrabModeAsync
 )
 
 /*
@@ -79,6 +80,10 @@ type Cursor struct {
  */
 type KeySym struct {
 	ptr C.KeySym
+}
+
+type Time struct {
+	ptr C.Time
 }
 
 func (d *Display) InitErrorHandler() {
@@ -223,6 +228,20 @@ func (d *Display) UngrabButton(button uint, modifiers uint, grab_window Window) 
 		C.uint(button),
 		C.uint(modifiers),
 		grab_window.id)
+}
+
+/*
+ * Grab the pointer
+ */
+func (d *Display) GrabPointer(grab_window Window, owner_events int, event_mask uint, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor, time Time) {
+	C.XGrabPointer(d.ptr, grab_window.id, C.int(owner_events), C.uint(event_mask), C.int(pointer_mode), C.int(keyboard_mode), confine_to.id, cursor.ptr, time.ptr)
+}
+
+/*
+ * Ungrab the pointer
+ */
+func (d *Display) UngrabPointer(time Time) {
+	C.XUngrabPointer(d.ptr, time.ptr)
 }
 
 /*
