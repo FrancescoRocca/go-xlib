@@ -19,4 +19,12 @@ static inline XMotionEvent *GetMotionEvent(XEvent *event) {
     return &event->xmotion;
 }
 
+static inline XMapRequestEvent *GetMapRequestEvent(XEvent *event) {
+    return &event->xmaprequest;
+}
+
+static inline XConfigureRequestEvent *GetConfigureRequestEvent(XEvent *event) {
+    return &event->xconfigurerequest;
+}
+
 #endif

@@ -43,6 +43,30 @@ type ButtonEvent struct {
 	SameScreen   int
 }
 
+type MapRequestEvent struct {
+	Type      int
+	Serial    uint64
+	SendEvent bool
+	Display   *Display
+	Parent    Window
+	Window    Window
+}
+
+type ConfigureRequestEvent struct {
+	Type          int
+	Serial        uint64
+	SendEvent     bool
+	Display       *Display
+	Parent        Window
+	Window        Window
+	X, Y          int
+	Width, Height int
+	BorderWidth   int
+	Above         Window
+	Detail        int
+	ValueMask     uint
+}
+
 func (d *Display) SelectInput(window Window, event_mask uint32) {
 	C.XSelectInput(d.ptr, window.id, C.long(event_mask))
 }
@@ -119,5 +143,55 @@ func (e *Event) AsButtonEvent() *ButtonEvent {
 		State:      uint(be.state),
 		Button:     uint(be.button),
 		SameScreen: int(be.same_screen),
+	}
+}
+
+func (e *Event) MapRequestEvent() *C.XMapRequestEvent {
+	return C.GetMapRequestEvent(&e.ptr)
+}
+
+func (e *Event) AsMapRequestEvent() *MapRequestEvent {
+	mre := e.MapRequestEvent()
+
+	if mre == nil {
+		return nil
+	}
+
+	return &MapRequestEvent{
+		Type:      int(mre._type),
+		Serial:    uint64(mre.serial),
+		SendEvent: mre.send_event != 0,
+		Display:   &Display{ptr: mre.display},
+		Parent:    Window{id: mre.parent},
+		Window:    Window{id: mre.window},
+	}
+}
+
+func (e *Event) ConfigureRequestEvent() *C.XConfigureRequestEvent {
+	return C.GetConfigureRequestEvent(&e.ptr)
+}
+
+func (e *Event) AsConfigureRequestEvent() *ConfigureRequestEvent {
+	cre := e.ConfigureRequestEvent()
+
+	if cre == nil {
+		return nil
+	}
+
+	return &ConfigureRequestEvent{
+		Type:        int(cre._type),
+		Serial:      uint64(cre.serial),
+		SendEvent:   cre.send_event != 0,
+		Display:     &Display{ptr: cre.display},
+		Parent:      Window{id: cre.parent},
+		Window:      Window{id: cre.window},
+		X:           int(cre.x),
+		Y:           int(cre.y),
+		Width:       int(cre.width),
+		Height:      int(cre.height),
+		BorderWidth: int(cre.border_width),
+		Above:       Window{id: cre.above},
+		Detail:      int(cre.detail),
+		ValueMask:   uint(cre.value_mask),
 	}
 }
