@@ -82,10 +82,6 @@ type KeySym struct {
 	ptr C.KeySym
 }
 
-type Time struct {
-	ptr C.Time
-}
-
 func (d *Display) InitErrorHandler() {
 	C.SetErrorHandler()
 }
@@ -233,15 +229,15 @@ func (d *Display) UngrabButton(button uint, modifiers uint, grab_window Window) 
 /*
  * Grab the pointer
  */
-func (d *Display) GrabPointer(grab_window Window, owner_events int, event_mask uint, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor, time Time) {
-	C.XGrabPointer(d.ptr, grab_window.id, C.int(owner_events), C.uint(event_mask), C.int(pointer_mode), C.int(keyboard_mode), confine_to.id, cursor.ptr, time.ptr)
+func (d *Display) GrabPointer(grab_window Window, owner_events int, event_mask uint32, pointer_mode int, keyboard_mode int, confine_to Window, cursor Cursor, time uint64) {
+	C.XGrabPointer(d.ptr, grab_window.id, C.int(owner_events), C.uint(event_mask), C.int(pointer_mode), C.int(keyboard_mode), confine_to.id, cursor.ptr, C.Time(time))
 }
 
 /*
  * Ungrab the pointer
  */
-func (d *Display) UngrabPointer(time Time) {
-	C.XUngrabPointer(d.ptr, time.ptr)
+func (d *Display) UngrabPointer(time uint64) {
+	C.XUngrabPointer(d.ptr, C.Time(time))
 }
 
 /*
