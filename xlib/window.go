@@ -7,6 +7,16 @@ package xlib
 import "C"
 import "errors"
 
+const (
+	CWX           uint = uint(C.CWX)
+	CWY           uint = uint(C.CWY)
+	CWWidth       uint = uint(C.CWWidth)
+	CWHeight      uint = uint(C.CWHeight)
+	CWBorderWidth uint = uint(C.CWBorderWidth)
+	CWSibling     uint = uint(C.CWSibling)
+	CWStackMode   uint = uint(C.CWStackMode)
+)
+
 type Window struct {
 	id C.Window
 }
@@ -18,6 +28,14 @@ type WindowAttributes struct {
 	BorderWidth   int
 	Depth         int
 	Root          Window
+}
+
+type WindowChanges struct {
+	X, Y          int
+	Width, Height int
+	BorderWidth   int
+	Sibling       Window
+	StackMode     int
 }
 
 func NoneWindow() Window {
@@ -34,6 +52,20 @@ func (d *Display) DefaultRootWindow() Window {
 	win := C.XDefaultRootWindow(d.ptr)
 
 	return Window{id: win}
+}
+
+func (d *Display) ConfigureWindow(window Window, value_mask uint, changes WindowChanges) {
+	cChanges := C.XWindowChanges{
+		x:            C.int(changes.X),
+		y:            C.int(changes.Y),
+		width:        C.int(changes.Width),
+		height:       C.int(changes.Height),
+		border_width: C.int(changes.BorderWidth),
+		sibling:      C.Window(changes.Sibling.id),
+		stack_mode:   C.int(changes.StackMode),
+	}
+
+	C.XConfigureWindow(d.ptr, C.Window(window.id), C.uint(value_mask), &cChanges)
 }
 
 func (d *Display) CreateSimpleWindow(parent Window, x int, y int, width uint, height uint, border_width uint, border uint64, background uint64) Window {
