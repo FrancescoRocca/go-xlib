@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/francescorocca/go-xlib/xlib"
+	"github.com/francescorocca/go-xlib"
 )
 
 func spawnLauncher() error {
