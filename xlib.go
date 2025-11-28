@@ -163,8 +163,17 @@ func NoneCursor() Cursor {
 /*
  * MapWindow maps a window to the display.
  */
-func (d *Display) MapWindow(w Window) error {
-	C.XMapWindow(d.ptr, w.id)
+func (d *Display) MapWindow(window Window) error {
+	C.XMapWindow(d.ptr, window.id)
+
+	return d.SyncAndCheckError()
+}
+
+/*
+ * Unmap a window to the display.
+ */
+func (d *Display) UnmapWindow(window Window) error {
+	C.XUnmapWindow(d.ptr, window.id)
 
 	return d.SyncAndCheckError()
 }
