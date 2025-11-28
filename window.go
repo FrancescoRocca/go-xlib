@@ -77,7 +77,7 @@ func (d *Display) DefaultRootWindow() Window {
  * ConfigureWindow changes the configuration of a window.
  * The value_mask parameter determines which fields in changes are used.
  */
-func (d *Display) ConfigureWindow(window Window, value_mask uint, changes WindowChanges) error {
+func (d *Display) ConfigureWindow(window Window, valueMask uint, changes WindowChanges) error {
 	cChanges := C.XWindowChanges{
 		x:            C.int(changes.X),
 		y:            C.int(changes.Y),
@@ -87,7 +87,25 @@ func (d *Display) ConfigureWindow(window Window, value_mask uint, changes Window
 		sibling:      C.Window(changes.Sibling.id),
 		stack_mode:   C.int(changes.StackMode),
 	}
-	C.XConfigureWindow(d.ptr, C.Window(window.id), C.uint(value_mask), &cChanges)
+	C.XConfigureWindow(d.ptr, C.Window(window.id), C.uint(valueMask), &cChanges)
+
+	return d.SyncAndCheckError()
+}
+
+/*
+ * MapWindow maps a window to the display.
+ */
+func (d *Display) MapWindow(window Window) error {
+	C.XMapWindow(d.ptr, window.id)
+
+	return d.SyncAndCheckError()
+}
+
+/*
+ * Unmap a window to the display.
+ */
+func (d *Display) UnmapWindow(window Window) error {
+	C.XUnmapWindow(d.ptr, window.id)
 
 	return d.SyncAndCheckError()
 }
@@ -95,7 +113,7 @@ func (d *Display) ConfigureWindow(window Window, value_mask uint, changes Window
 /*
  * CreateSimpleWindow creates a simple window with the specified parameters.
  */
-func (d *Display) CreateSimpleWindow(parent Window, x int, y int, width uint, height uint, border_width uint, border uint64, background uint64) Window {
+func (d *Display) CreateSimpleWindow(parent Window, x int, y int, width uint, height uint, borderWidth uint, border uint64, background uint64) Window {
 	win := C.XCreateSimpleWindow(
 		d.ptr,
 		parent.id,
@@ -103,7 +121,7 @@ func (d *Display) CreateSimpleWindow(parent Window, x int, y int, width uint, he
 		C.int(y),
 		C.uint(width),
 		C.uint(height),
-		C.uint(border_width),
+		C.uint(borderWidth),
 		C.ulong(border),
 		C.ulong(background))
 	return Window{id: win}
